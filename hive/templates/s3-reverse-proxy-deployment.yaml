@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --out k8s
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: s3-reverse-proxy
+  name: s3-reverse-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: s3-reverse-proxy
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --out k8s
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: s3-reverse-proxy
+    spec:
+      containers:
+        - args:
+            - caddy
+            - reverse-proxy
+            - --from
+            - :8083
+            - --to
+            - s3:9000
+            - --change-host-header
+          image: caddy:2.6.4-alpine
+          name: s3-reverse-proxy
+          ports:
+            - containerPort: 8083
+          resources: {}
+      restartPolicy: Always
+status: {}

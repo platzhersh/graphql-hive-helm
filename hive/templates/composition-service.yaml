@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --out k8s
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: composition
+  name: composition
+spec:
+  ports:
+    - name: "3069"
+      port: 3069
+      targetPort: 3069
+  selector:
+    io.kompose.service: composition
+status:
+  loadBalancer: {}

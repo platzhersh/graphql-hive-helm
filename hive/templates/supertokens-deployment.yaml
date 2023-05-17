@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: supertokens
+  name: supertokens
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: supertokens
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: supertokens
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "3567"
+            - name: ACCESS_TOKEN_BLACKLISTING
+              value: "true"
+            - name: API_KEYS
+              value: {{ .Values.SUPERTOKENS_API_KEY | quote  }}
+            - name: POSTGRESQL_DATABASE_NAME
+              value: {{ .Values.POSTGRES_DB  | quote }}
+            - name: POSTGRESQL_HOST
+              value: db.{{ .Release.Namespace }}.svc
+            - name: POSTGRESQL_PASSWORD
+              value: {{ .Values.POSTGRES_PASSWORD | quote  }}
+            - name: POSTGRESQL_PORT
+              value: "5432"
+            - name: POSTGRESQL_TABLE_NAMES_PREFIX
+              value: supertokens
+            - name: POSTGRESQL_USER
+              value: {{ .Values.POSTGRES_USER | quote }}
+          image: registry.supertokens.io/supertokens/supertokens-postgresql:5.0
+          name: supertokens
+          resources: {}
+      restartPolicy: Always
+status: {}

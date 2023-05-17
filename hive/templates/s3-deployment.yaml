@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --out k8s
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: s3
+  name: s3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: s3
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --out k8s
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: s3
+    spec:
+      containers:
+        - args:
+            - server
+            - /data
+            - --console-address
+            - :9001
+          env:
+            - name: MINIO_ROOT_PASSWORD
+              value: {{ .Values.MINIO_ROOT_PASSWORD }}
+            - name: MINIO_ROOT_USER
+              value: {{ .Values.MINIO_ROOT_USER }}
+          image: quay.io/minio/minio:RELEASE.2022-11-29T23-40-49Z
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:9000/minio/health/live
+            failureThreshold: 3
+            periodSeconds: 30
+            timeoutSeconds: 20
+          name: s3
+          ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: s3-claim0
+      restartPolicy: Always
+      volumes:
+        - name: s3-claim0
+          persistentVolumeClaim:
+            claimName: s3-claim0
+status: {}

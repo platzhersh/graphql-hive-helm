@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    io.kompose.service: s3-provision-buckets
+  name: s3-provision-buckets
+spec:
+  # selector:
+  #   matchLabels:
+  #     io.kompose.service: s3-provision-buckets
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: s3-provision-buckets
+    spec:
+      containers:
+      # TODO: PERZ-269 check if correctly executed and resolving env vars
+        - command:
+            - /bin/sh
+            - -c
+            - ' /usr/bin/mc alias set myminio http://s3.{{ .Release.Namespace }}.svc:9000 {{ .Values.MINIO_ROOT_USER}} {{ .Values.MINIO_ROOT_PASSWORD }}; /usr/bin/mc ls myminio/artifacts >/dev/null 2>&1 || /usr/bin/mc mb myminio/artifacts; exit 0'
+          image: quay.io/minio/mc:RELEASE.2022-11-17T21-20-39Z
+          name: s3-provision-buckets
+          resources: {}
+      restartPolicy: OnFailure
+status: {}

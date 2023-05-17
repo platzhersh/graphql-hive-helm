@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --out k8s
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: usage-ingestor
+  name: usage-ingestor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: usage-ingestor
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --out k8s
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: usage-ingestor
+    spec:
+      containers:
+        - env:
+            - name: CLICKHOUSE_HOST
+              value: clickhouse.{{ .Release.Namespace }}.svc
+            - name: CLICKHOUSE_PASSWORD
+              value: {{ .Values.CLICKHOUSE_PASSWORD }}
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_PROTOCOL
+              value: http
+            - name: CLICKHOUSE_USERNAME
+              value: {{ .Values.CLICKHOUSE_USER }}
+            - name: KAFKA_BROKER
+              value: broker.{{ .Release.Namespace }}.svc:29092
+            - name: KAFKA_CONCURRENCY
+              value: "1"
+            - name: KAFKA_CONNECTION_MODE
+              value: docker
+            - name: KAFKA_CONSUMER_GROUP
+              value: usage-ingestor-v2
+            - name: KAFKA_TOPIC
+              value: usage_reports_v2
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3007"
+          image: {{ .Values.DOCKER_REGISTRY }}usage-ingestor{{ .Values.DOCKER_TAG }}
+          name: usage-ingestor
+          resources: {}
+      restartPolicy: Always
+status: {}

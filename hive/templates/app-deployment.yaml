@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: app
+    spec:
+      containers:
+        - env:
+            - name: APP_BASE_URL
+              value: {{ .Values.HIVE_APP_BASE_URL }}
+            - name: AUTH_ORGANIZATION_OIDC
+              value: {{ .Values.AUTH_ORGANIZATION_OIDC | quote }}
+            - name: AUTH_REQUIRE_EMAIL_VERIFICATION
+              value: {{ .Values.AUTH_REQUIRE_EMAIL_VERIFICATION | quote }}
+            - name: EMAILS_ENDPOINT
+              value: http://emails.{{ .Release.Namespace }}.svc:{{ .Values.EMAILS_PORT }}
+            - name: GRAPHQL_ENDPOINT
+              value: http://server.{{ .Release.Namespace }}.svc:{{ .Values.SERVER_GRAPHQL_PORT }}/graphql
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: {{ .Values.APP_PORT | quote }}
+            - name: SERVER_ENDPOINT
+              value: http://server.{{ .Release.Namespace }}.svc:{{ .Values.SERVER_GRAPHQL_PORT }}
+            - name: SUPERTOKENS_API_KEY
+              value: {{ .Values.SUPERTOKENS_API_KEY }}
+            - name: SUPERTOKENS_CONNECTION_URI
+              value: http://supertokens.{{ .Release.Namespace }}.svc:3567
+          image: {{ .Values.DOCKER_REGISTRY }}app{{ .Values.DOCKER_TAG }}
+          name: registry-app
+          ports:
+            - containerPort: {{ .Values.APP_PORT | }}
+          resources: {}
+      restartPolicy: Always
+status: {}

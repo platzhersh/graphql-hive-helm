@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --out k8s
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: composition
+  name: composition
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: composition
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --out k8s
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: composition
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "3069"
+            - name: SECRET
+              value: {{ .Values.COMPOSITION_SECRET }}
+          image: ghcr.io/kamilkisiela/graphql-hive/composition-federation-2
+          name: composition
+          ports:
+            - containerPort: 3069
+          resources: {}
+      restartPolicy: Always
+status: {}

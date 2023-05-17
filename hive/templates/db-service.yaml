@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  ports:
+    - name: "5432" # TODO: PERZ-269 move into config
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: db

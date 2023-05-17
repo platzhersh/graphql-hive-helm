@@ -1,0 +1,34 @@
+# docker registry
+DOCKER_REGISTRY: "ghcr.io/kamilkisiela/graphql-hive/"
+DOCKER_TAG: ":latest" # Pin this to an exact commit hash from our `main` branch, we publish a Docker image per each commit on main, and for PRs.
+# hive instance
+HIVE_ENCRYPTION_SECRET: "hive_secret"
+HIVE_APP_BASE_URL: "http://localhost:8080"
+HIVE_EMAIL_FROM: "no-reply@graphql-hive.com"
+AUTH_ORGANIZATION_OIDC: "1"
+AUTH_REQUIRE_EMAIL_VERIFICATION: "0"
+# supertokens
+SUPERTOKENS_API_KEY: "XDWQdx0aYyU8eNXQ2rQ6"
+# clickhouse
+CLICKHOUSE_USER: "clickhouse"
+CLICKHOUSE_PASSWORD: "clickhouse_password"
+# redis
+REDIS_PASSWORD: "redis_password"
+# postgres
+POSTGRES_USER: "postgres"
+POSTGRES_PASSWORD: "postgres_password"
+POSTGRES_DB: "registry"
+# minio s3
+MINIO_ROOT_USER: "minioadmin"
+MINIO_ROOT_PASSWORD: "minioadmin"
+# cdn
+CDN_AUTH_PRIVATE_KEY: "cdn_auth_key"
+# composition service for apollo federation
+COMPOSITION_SECRET: "SOME_SECRET"
+
+# app
+APP_PORT: 3000
+# server
+SERVER_GRAPHQL_PORT: "8082"
+# emails
+EMAILS_PORT: "3011"

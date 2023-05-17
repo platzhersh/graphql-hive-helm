@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --out k8s
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: usage
+  name: usage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: usage
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --out k8s
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/hive: "true"
+        io.kompose.service: usage
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_BROKER
+              value: broker.{{ .Release.Namespace }}.svc:29092
+            - name: KAFKA_BUFFER_DYNAMIC
+              value: "1"
+            - name: KAFKA_BUFFER_INTERVAL
+              value: "1000"
+            - name: KAFKA_BUFFER_SIZE
+              value: "350"
+            - name: KAFKA_CONNECTION_MODE
+              value: docker
+            - name: KAFKA_TOPIC
+              value: usage_reports_v2
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3006"
+            - name: TOKENS_ENDPOINT
+              value: http://tokens:3003
+          image: {{ .Values.DOCKER_REGISTRY }}usage{{ .Values.DOCKER_TAG }}
+          name: usage
+          ports:
+            - containerPort: 3006
+          resources: {}
+      restartPolicy: Always
+status: {}
