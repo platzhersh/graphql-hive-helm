@@ -1,10 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --out k8s
-    kompose.version: 1.28.0 (c4137012e)
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -17,20 +13,16 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --out k8s
-        kompose.version: 1.28.0 (c4137012e)
-      creationTimestamp: null
       labels:
         io.kompose.network/hive: "true"
         io.kompose.service: redis
     spec:
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 0
+        fsGroup: 1001
       containers:
-        - env:
-            - name: REDIS_DISABLE_COMMANDS
-              value: FLUSHDB,FLUSHALL
-            - name: REDIS_PASSWORD
-              value: {{ .Values.REDIS_PASSWORD }}
+        - name: redis
           image: bitnami/redis:7.0.10
           livenessProbe:
             exec:
@@ -41,8 +33,15 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 10
-          name: redis
           resources: {}
+          env:
+            - name: REDIS_DISABLE_COMMANDS
+              value: FLUSHDB,FLUSHALL
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: redisPassword
           volumeMounts:
             - mountPath: /bitnami/redis/data
               name: redis-claim0

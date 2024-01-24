@@ -24,8 +24,13 @@ spec:
         io.kompose.network/hive: "true"
         io.kompose.service: webhooks
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - image: {{ .Values.DOCKER_REGISTRY }}webhooks{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
+          name: webhooks
+          env:
             - name: NODE_ENV
               value: production
             - name: PORT
@@ -33,11 +38,12 @@ spec:
             - name: REDIS_HOST
               value: redis.{{ .Release.Namespace }}.svc
             - name: REDIS_PASSWORD
-              value: {{ .Values.REDIS_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: redisPassword
             - name: REDIS_PORT
-              value: "6379" # TODO: PERZ-269 move into values
-          image: {{ .Values.DOCKER_REGISTRY }}webhooks{{ .Values.DOCKER_TAG }}
-          name: webhooks
+              value: {{ .Values.REDIS_PORT | quote }}
           resources: {}
       restartPolicy: Always
 status: {}

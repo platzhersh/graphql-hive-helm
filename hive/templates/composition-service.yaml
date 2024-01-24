@@ -1,18 +1,18 @@
+# Hive cannot use Apollo Federation v2 libraries directly due to licensing
+# Therefore we use a separate composition service that uses Apollo Federation v2
+# More information: https://the-guild.dev/graphql/hive/docs/management/external-schema-composition
+# More information. https://github.com/kamilkisiela/graphql-hive/tree/main/packages/services/external-composition/federation-2
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --out k8s
-    kompose.version: 1.28.0 (c4137012e)
-  creationTimestamp: null
   labels:
     io.kompose.service: composition
   name: composition
 spec:
   ports:
     - name: "3069"
-      port: 3069
-      targetPort: 3069
+      port: {{ .Values.COMPOSITION_PORT }}
+      targetPort: {{ .Values.COMPOSITION_PORT }}
   selector:
     io.kompose.service: composition
 status:

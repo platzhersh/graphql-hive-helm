@@ -6,9 +6,10 @@ metadata:
     io.kompose.service: s3-claim0
   name: s3-claim0
 spec:
+  storageClassName: longhorn-critical
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
+      storage: 300Mi
 status: {}

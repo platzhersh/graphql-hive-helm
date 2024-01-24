@@ -10,7 +10,7 @@ metadata:
   name: s3-reverse-proxy
 spec:
   ports:
-    - name: "8083"
+    - name: "s3-reverse-proxy"
       port: 8083
       targetPort: 8083
   selector:

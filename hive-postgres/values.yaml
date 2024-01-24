@@ -1,0 +1,14 @@
+fullnameOverride: db
+global:
+  storageClass: longhorn-critical
+  postgresql:
+    auth:
+      # username: postgres_hive
+      database: registry
+      existingSecret: supergraph-registry-secrets
+      secretKeys:
+        adminPasswordKey: postgresPassword
+        # userPasswordKey: postgresPassword
+primary:
+  persistence:
+    size: 500Mi

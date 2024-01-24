@@ -1,34 +1,57 @@
 # docker registry
 DOCKER_REGISTRY: "ghcr.io/kamilkisiela/graphql-hive/"
 DOCKER_TAG: ":latest" # Pin this to an exact commit hash from our `main` branch, we publish a Docker image per each commit on main, and for PRs.
+
 # hive instance
-HIVE_ENCRYPTION_SECRET: "hive_secret"
-HIVE_APP_BASE_URL: "http://localhost:8080"
-HIVE_EMAIL_FROM: "no-reply@graphql-hive.com"
+HIVE_APP_BASE_URL: "https://hive.yourdomain.com"
+HIVE_EMAIL_FROM: "hive@yourdomain.com"
 AUTH_ORGANIZATION_OIDC: "1"
 AUTH_REQUIRE_EMAIL_VERIFICATION: "0"
 # supertokens
-SUPERTOKENS_API_KEY: "XDWQdx0aYyU8eNXQ2rQ6"
-# clickhouse
-CLICKHOUSE_USER: "clickhouse"
-CLICKHOUSE_PASSWORD: "clickhouse_password"
-# redis
-REDIS_PASSWORD: "redis_password"
-# postgres
-POSTGRES_USER: "postgres"
-POSTGRES_PASSWORD: "postgres_password"
-POSTGRES_DB: "registry"
-# minio s3
-MINIO_ROOT_USER: "minioadmin"
-MINIO_ROOT_PASSWORD: "minioadmin"
-# cdn
-CDN_AUTH_PRIVATE_KEY: "cdn_auth_key"
-# composition service for apollo federation
-COMPOSITION_SECRET: "SOME_SECRET"
+SUPERTOKENS_PORT: 3567
+SUPERTOKENS_IMAGE: registry.supertokens.io/supertokens/supertokens-postgresql
+SUPERTOKENS_VERSION: "4.6"
 
 # app
-APP_PORT: 3000
+baseUrl: hive.yourdomain.com
+APP_CONTAINER_PORT: 3000
+APP_EXPOSED_PORT: 8080
 # server
-SERVER_GRAPHQL_PORT: "8082"
+serverUrl: server.hive.dev.yourdomain.io
+SERVER_CONTAINER_PORT: 3001
+SERVER_EXPOSED_PORT: "8082"
+
 # emails
-EMAILS_PORT: "3011"
+EMAILS_EXPOSED_PORT: 3011
+EMAILS_PROVIDER: "smtp"
+EMAILS_PROVIDER_SMTP_PROTOCOL: "smtp"
+EMAILS_PROVIDER_SMTP_HOST: "exchange.yourdomain.com"
+EMAILS_PROVIDER_SMTP_PORT: 25
+EMAILs_PROVIDER_SMTP_AUTH_USERNAME:
+EMAILS_PROVIDER_SMTP_AUTH_PASSWORD:
+
+# db
+POSTGRES_DB: registry
+POSTGRES_USER: postgres
+
+# broker
+KAFKA_PORT: 9092
+KAFKA_TOPIC: "usage_reports_v2"
+KAFKA_CONSUMER_GROUP: "usage-ingestor-v2"
+# usage
+USAGE_CONTAINER_PORT: 3006
+USAGE_EXPOSED_PORT: 8081
+USAGE_INGESTOR_PORT: 3007
+# clickhouse
+CLICKHOUSE_PORT: 8123
+CLICKHOUSE_PROTOCOL: http
+CLICKHOUSE_USER: clickhouse
+# zookeeper
+ZOOKEEPER_PORT: 2181
+# redis
+REDIS_PORT: 6379
+
+# composition
+COMPOSITION_PORT: 3069
+# Tag before IPv6 https://github.com/kamilkisiela/graphql-hive/pkgs/container/graphql-hive%2Fcomposition-federation-2/69264672?tag=ab24f0c48054da10d31c89e035c6cd02fafe8e33
+COMPOSITION_TAG: ":ab24f0c48054da10d31c89e035c6cd02fafe8e33"

@@ -1,10 +1,12 @@
+# Hive cannot use Apollo Federation v2 libraries directly due to licensing
+# Therefore we use a separate composition service that uses Apollo Federation v2
+# More information: https://the-guild.dev/graphql/hive/docs/management/external-schema-composition
+# More information. https://github.com/kamilkisiela/graphql-hive/tree/main/packages/services/external-composition/federation-2
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --out k8s
-    kompose.version: 1.28.0 (c4137012e)
-  creationTimestamp: null
+  # annotations:
+  #   dockerTag: {{ .Values.COMPOSITION_TAG | quote }}
   labels:
     io.kompose.service: composition
   name: composition
@@ -16,24 +18,26 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --out k8s
-        kompose.version: 1.28.0 (c4137012e)
-      creationTimestamp: null
       labels:
         io.kompose.network/hive: "true"
         io.kompose.service: composition
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
-            - name: PORT
-              value: "3069"
-            - name: SECRET
-              value: {{ .Values.COMPOSITION_SECRET }}
-          image: ghcr.io/kamilkisiela/graphql-hive/composition-federation-2
+        - image: {{ .Values.DOCKER_REGISTRY }}composition-federation-2{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
           name: composition
           ports:
-            - containerPort: 3069
+            - containerPort: {{ .Values.COMPOSITION_PORT }}
           resources: {}
+          env:
+            - name: PORT
+              value: {{ .Values.COMPOSITION_PORT | quote }}
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: compositionSecret
       restartPolicy: Always
 status: {}

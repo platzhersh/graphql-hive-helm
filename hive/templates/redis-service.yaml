@@ -4,8 +4,8 @@ metadata:
   name: redis
 spec:
   ports:
-    - name: "6379" # TODO: PERZ-269 move into config
-      port: 6379
-      targetPort: 6379
+    - name: "redis"
+      port: {{ .Values.REDIS_PORT }}
+      targetPort: {{ .Values.REDIS_PORT }}
   selector:
     io.kompose.service: redis

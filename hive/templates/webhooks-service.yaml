@@ -4,7 +4,7 @@ metadata:
   name: webhooks
 spec:
   ports:
-    - name: "3005" # TODO: PERZ-269 move into config
+    - name: "3005"
       port: 3005
       targetPort: 3005
   selector:

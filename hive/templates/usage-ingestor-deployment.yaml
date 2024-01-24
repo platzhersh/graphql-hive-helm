@@ -1,10 +1,8 @@
+# This service takes care of feeding usage data into the ClickHouse instance.
+# More information: https://github.com/kamilkisiela/graphql-hive/blob/main/packages/services/usage-ingestor/README.md
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --out k8s
-    kompose.version: 1.28.0 (c4137012e)
-  creationTimestamp: null
   labels:
     io.kompose.service: usage-ingestor
   name: usage-ingestor
@@ -16,42 +14,52 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --out k8s
-        kompose.version: 1.28.0 (c4137012e)
-      creationTimestamp: null
       labels:
         io.kompose.network/hive: "true"
         io.kompose.service: usage-ingestor
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - image: {{ .Values.DOCKER_REGISTRY }}usage-ingestor{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
+          name: usage-ingestor
+          env:
             - name: CLICKHOUSE_HOST
               value: clickhouse.{{ .Release.Namespace }}.svc
-            - name: CLICKHOUSE_PASSWORD
-              value: {{ .Values.CLICKHOUSE_PASSWORD }}
             - name: CLICKHOUSE_PORT
-              value: "8123"
+              value: {{ .Values.CLICKHOUSE_PORT | quote }}
             - name: CLICKHOUSE_PROTOCOL
-              value: http
+              value: {{ .Values.CLICKHOUSE_PROTOCOL | quote }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: clickhousePassword
             - name: CLICKHOUSE_USERNAME
               value: {{ .Values.CLICKHOUSE_USER }}
             - name: KAFKA_BROKER
-              value: broker.{{ .Release.Namespace }}.svc:29092
+              value: kafka-broker.{{ .Release.Namespace }}.svc:{{ .Values.KAFKA_PORT }}
+              # value: broker.{{ .Release.Namespace }}.svc:{{ .Values.KAFKA_PORT }}
             - name: KAFKA_CONCURRENCY
               value: "1"
+            # KAFKA_CONNECTION_MODE is not documented
             - name: KAFKA_CONNECTION_MODE
               value: docker
             - name: KAFKA_CONSUMER_GROUP
-              value: usage-ingestor-v2
+              value: {{ .Values.KAFKA_CONSUMER_GROUP }}
             - name: KAFKA_TOPIC
-              value: usage_reports_v2
+              value: {{ .Values.KAFKA_TOPIC }}
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: "3007"
-          image: {{ .Values.DOCKER_REGISTRY }}usage-ingestor{{ .Values.DOCKER_TAG }}
-          name: usage-ingestor
+              value: {{ .Values.USAGE_INGESTOR_PORT | quote }}
+            - name: PROMETHEUS_METRICS
+              value: "1"
+            - name: PROMETHEUS_METRICS_LABEL_INSTANCE
+              value: usage-ingestor
+            - name: REQUEST_LOGGING
+              value: "1"
           resources: {}
       restartPolicy: Always
 status: {}

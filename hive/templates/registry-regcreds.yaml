@@ -1,0 +1,12 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: registry-regcreds
+spec:
+  encryptedData:
+    {{- $secretFile := print "secrets/dev-" .Release.Namespace "-regcreds.secret" }}
+    .dockerconfigjson: {{ .Files.Get $secretFile }}
+  template:
+    type: kubernetes.io/dockerconfigjson
+    metadata:
+      name: registry-regcreds

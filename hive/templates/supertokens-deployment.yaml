@@ -17,27 +17,33 @@ spec:
         io.kompose.service: supertokens
     spec:
       containers:
-        - env:
-            - name: PORT
-              value: "3567"
+        - image: {{ .Values.SUPERTOKENS_IMAGE }}:{{ .Values.SUPERTOKENS_VERSION }}
+          name: supertokens
+          resources: {}
+          env:
+            - name: SUPERTOKENS_PORT
+              value: {{ .Values.SUPERTOKENS_PORT | quote }}
             - name: ACCESS_TOKEN_BLACKLISTING
               value: "true"
             - name: API_KEYS
-              value: {{ .Values.SUPERTOKENS_API_KEY | quote  }}
-            - name: POSTGRESQL_DATABASE_NAME
-              value: {{ .Values.POSTGRES_DB  | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: supertokensApiKey
             - name: POSTGRESQL_HOST
               value: db.{{ .Release.Namespace }}.svc
-            - name: POSTGRESQL_PASSWORD
-              value: {{ .Values.POSTGRES_PASSWORD | quote  }}
             - name: POSTGRESQL_PORT
               value: "5432"
             - name: POSTGRESQL_TABLE_NAMES_PREFIX
               value: supertokens
+            - name: POSTGRESQL_DATABASE_NAME
+              value: {{ .Values.POSTGRES_DB }}
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: postgresPassword
             - name: POSTGRESQL_USER
-              value: {{ .Values.POSTGRES_USER | quote }}
-          image: registry.supertokens.io/supertokens/supertokens-postgresql:5.0
-          name: supertokens
-          resources: {}
+              value: {{ .Values.POSTGRES_USER }}
       restartPolicy: Always
 status: {}

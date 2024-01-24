@@ -16,38 +16,45 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --out k8s
-        kompose.version: 1.28.0 (c4137012e)
-      creationTimestamp: null
       labels:
         io.kompose.network/hive: "true"
         io.kompose.service: usage
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - name: usage
+          image: {{ .Values.DOCKER_REGISTRY }}usage{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.USAGE_CONTAINER_PORT }}
+          resources: {}
+          env:
             - name: KAFKA_BROKER
-              value: broker.{{ .Release.Namespace }}.svc:29092
+              value: kafka-broker.{{ .Release.Namespace }}.svc:{{ .Values.KAFKA_PORT }}
+              # value: broker.{{ .Release.Namespace }}.svc:{{ .Values.KAFKA_PORT }}
             - name: KAFKA_BUFFER_DYNAMIC
               value: "1"
             - name: KAFKA_BUFFER_INTERVAL
               value: "1000"
             - name: KAFKA_BUFFER_SIZE
               value: "350"
+            # KAFKA_CONNECTION_MODE is not documented
             - name: KAFKA_CONNECTION_MODE
               value: docker
             - name: KAFKA_TOPIC
-              value: usage_reports_v2
+              value: {{ .Values.KAFKA_TOPIC }}
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: "3006"
+              value: {{ .Values.USAGE_CONTAINER_PORT | quote }}
             - name: TOKENS_ENDPOINT
-              value: http://tokens:3003
-          image: {{ .Values.DOCKER_REGISTRY }}usage{{ .Values.DOCKER_TAG }}
-          name: usage
-          ports:
-            - containerPort: 3006
-          resources: {}
+              value: http://tokens.{{ .Release.Namespace }}.svc:3003
+            - name: PROMETHEUS_METRICS
+              value: "1"
+            - name: PROMETHEUS_METRICS_LABEL_INSTANCE
+              value: usage
+            - name: REQUEST_LOGGING
+              value: "1"
       restartPolicy: Always
 status: {}

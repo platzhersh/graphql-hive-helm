@@ -6,6 +6,7 @@ metadata:
     io.kompose.service: redis-claim0
   name: redis-claim0
 spec:
+  storageClassName: longhorn-noreplica
   accessModes:
     - ReadWriteOnce
   resources:

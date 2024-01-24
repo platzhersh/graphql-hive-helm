@@ -4,8 +4,8 @@ metadata:
   name: emails
 spec:
   ports:
-    - name: "3011" # TODO: PERZ-269 move into config
-      port: 3011
-      targetPort: 3011
+    - name: "3011"
+      port: {{ .Values.EMAILS_EXPOSED_PORT }}
+      targetPort: {{ .Values.EMAILS_EXPOSED_PORT }}
   selector:
     io.kompose.service: emails
