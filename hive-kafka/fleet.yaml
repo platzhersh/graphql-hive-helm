@@ -1,0 +1,8 @@
+defaultNamespace: hive
+helm:
+  repo: https://charts.bitnami.com/bitnami
+  chart: kafka
+  version: 23.0.5
+  releaseName: kafka-broker
+  valuesFiles:
+    - values.yaml

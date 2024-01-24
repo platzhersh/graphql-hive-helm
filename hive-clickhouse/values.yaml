@@ -1,0 +1,25 @@
+fullNameOverride: clickhouse
+image:
+  debug: false # can be set to true if unstable
+shards: 1
+# we don't need replicas
+replicaCount: 1
+global:
+  storageClass: longhorn-default
+auth:
+  username: clickhouse
+  existingSecret: supergraph-registry-secrets
+  existingSecretKey: clickhousePassword
+persistence:
+  size: 4Gi
+zookeeper:
+  enabled: false
+  replicaCount: 1
+keeper:
+  enabled: false
+# externalZookeeper
+externalZookeeper:
+  servers:
+    - "kafka-broker-zookeeper.hive.svc"
+  port: 2181
+loglevel: info

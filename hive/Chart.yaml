@@ -1,3 +1,6 @@
+### GraphQL Hive self hosted
+### Based on: https://github.com/kamilkisiela/graphql-hive/blob/main/docker/docker-compose.community.yml
+### Customised by Platzh1rsch
 apiVersion: v2
 name: supergraph-registry
 description: GraphQL Hive registry

@@ -1,0 +1,22 @@
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: supergraph-registry-route
+spec:
+  entryPoints:
+    - websecure
+  tls: 
+    secretName: server-hive
+  routes:
+  - match: Host(`{{ .Values.baseUrl }}`)
+    kind: Rule
+    services:
+    - name: app
+      port: {{ .Values.APP_EXPOSED_PORT }}
+  - match: Host(`{{ .Values.serverUrl }}`)
+    kind: Rule
+    services:
+    - name: server
+      port: {{ .Values.SERVER_EXPOSED_PORT }}

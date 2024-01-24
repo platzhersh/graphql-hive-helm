@@ -24,8 +24,14 @@ spec:
         io.kompose.network/hive: "true"
         io.kompose.service: tokens
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - name: tokens
+          image: {{ .Values.DOCKER_REGISTRY }}tokens{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
+          resources: {}
+          env:
             - name: NODE_ENV
               value: production
             - name: PORT
@@ -33,21 +39,25 @@ spec:
             - name: POSTGRES_DB
               value: {{ .Values.POSTGRES_DB }}
             - name: POSTGRES_HOST
-              value: db.hive.svc
+              value: db.{{ .Release.Namespace }}.svc
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.POSTGRES_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: postgresPassword
             - name: POSTGRES_PORT
               value: "5432"
             - name: POSTGRES_USER
               value: {{ .Values.POSTGRES_USER }}
             - name: REDIS_HOST
-              value: redis.hive.svc
+              value: redis.{{ .Release.Namespace }}.svc
             - name: REDIS_PASSWORD
-              value: {{ .Values.REDIS_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: redisPassword
             - name: REDIS_PORT
-              value: "6379"
-          image: {{ .Values.DOCKER_REGISTRY }}tokens{{ .Values.DOCKER_TAG }}
-          name: tokens
-          resources: {}
+              value: {{ .Values.REDIS_PORT | quote }}
+          
       restartPolicy: Always
 status: {}

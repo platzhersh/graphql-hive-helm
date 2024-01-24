@@ -24,10 +24,18 @@ spec:
         io.kompose.network/hive: "true"
         io.kompose.service: schema
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - image: {{ .Values.DOCKER_REGISTRY }}schema{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
+          name: schema
+          env:
             - name: ENCRYPTION_SECRET
-              value: {{ .Values.HIVE_ENCRYPTION_SECRET }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: hiveEncryptionSecret
             - name: NODE_ENV
               value: production
             - name: PORT
@@ -35,11 +43,12 @@ spec:
             - name: REDIS_HOST
               value: redis.{{ .Release.Namespace }}.svc
             - name: REDIS_PASSWORD
-              value: {{ .Values.REDIS_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: redisPassword
             - name: REDIS_PORT
-              value: "6379"
-          image: {{ .Values.DOCKER_REGISTRY}}schema{{ .Values.DOCKER_TAG }}
-          name: schema
+              value: {{ .Values.REDIS_PORT | quote }}
           resources: {}
       restartPolicy: Always
 status: {}

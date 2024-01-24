@@ -1,0 +1,9 @@
+# https://artifacthub.io/packages/helm/bitnami/clickhouse
+defaultNamespace: hive
+helm:
+  repo: https://charts.bitnami.com/bitnami
+  chart: clickhouse
+  version: 3.1.5
+  releaseName: clickhouse
+  valuesFiles:
+    - values.yaml

@@ -16,76 +16,104 @@ spec:
         io.kompose.network/hive: "true"
         io.kompose.service: server
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - image: {{ .Values.DOCKER_REGISTRY }}server{{ .Values.DOCKER_TAG }}
+          imagePullPolicy: Always
+          name: server
+          ports:
+            - containerPort: {{ .Values.SERVER_CONTAINER_PORT }}
+          resources: {}
+          env:
             - name: AUTH_ORGANIZATION_OIDC
               value: {{ .Values.AUTH_ORGANIZATION_OIDC | quote }}
             - name: CDN_API
               value: "1"
             - name: CDN_API_BASE_URL
-              value: http://server.hive.svc:8082 # TODO: PERZ-269 check if that works
+              value: http://server.{{ .Release.Namespace }}.svc:{{ .Values.SERVER_EXPOSED_PORT }} # TODO: PERZ-269 maybe doesn't work in cluster?
             - name: CDN_AUTH_PRIVATE_KEY
-              value: {{ .Values.CDN_AUTH_PRIVATE_KEY }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: cdnAuthPrivateKey
             - name: CLICKHOUSE_HOST
-              value: clickhouse.hive.svc
-            - name: CLICKHOUSE_PASSWORD
-              value: {{ .Values.CLICKHOUSE_PASSWORD }}
+              value: clickhouse.{{ .Release.Namespace }}.svc
             - name: CLICKHOUSE_PORT
-              value: "8123" # TODO: PERZ-269 get from values
+              value: {{ .Values.CLICKHOUSE_PORT | quote }}
             - name: CLICKHOUSE_PROTOCOL
-              value: http
+              value: {{ .Values.CLICKHOUSE_PROTOCOL | quote }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: clickhousePassword
             - name: CLICKHOUSE_USERNAME
               value: {{ .Values.CLICKHOUSE_USER }}
             - name: EMAILS_ENDPOINT
-              value: http://emails.hive.svc:3011
+              value: http://emails.{{ .Release.Namespace }}.svc:{{ .Values.EMAILS_EXPOSED_PORT }}
             - name: ENCRYPTION_SECRET
-              value: {{ .Values.HIVE_ENCRYPTION_SECRET }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: hiveEncryptionSecret
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: "3001" # TODO: PERZ-269 get from values
+              value: {{ .Values.SERVER_CONTAINER_PORT | quote }}
             - name: POSTGRES_DB
               value: {{ .Values.POSTGRES_DB }}
             - name: POSTGRES_HOST
-              value: db.hive.svc
+              value: db.{{ .Release.Namespace }}.svc
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.POSTGRES_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: postgresPassword
             - name: POSTGRES_PORT
-              value: "5432" # TODO: PERZ-269 get from values
+              value: "5432"
             - name: POSTGRES_USER
               value: {{ .Values.POSTGRES_USER }}
             - name: REDIS_HOST
-              value: redis.hive.svc # TODO: PERZ-269 template mit namespace und service name
+              value: redis.{{ .Release.Namespace }}.svc 
             - name: REDIS_PASSWORD
-              value: {{ .Values.REDIS_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: redisPassword
             - name: REDIS_PORT
-              value: "6379" # TODO: PERZ-269 get from values
+              value: {{ .Values.REDIS_PORT | quote }}
             - name: S3_ACCESS_KEY_ID
-              value: {{ .Values.MINIO_ROOT_USER }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: minioRootUser
             - name: S3_BUCKET_NAME
               value: artifacts
             - name: S3_ENDPOINT
-              value: http://s3.hive.svc:9000
+              value: http://s3.{{ .Release.Namespace }}.svc:9000
             - name: S3_PUBLIC_URL
-              value: http://s3-reverse-proxy.hive.svc:8083
+              value: http://s3-reverse-proxy.{{ .Release.Namespace }}.svc:8083
             - name: S3_SECRET_ACCESS_KEY
-              value: {{ .Values.MINIO_ROOT_PASSWORD}}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: minioRootPassword
             - name: SCHEMA_ENDPOINT
-              value: http://schema.hive.svc:3002
+              value: http://schema.{{ .Release.Namespace }}.svc:3002
             - name: SUPERTOKENS_API_KEY
-              value: {{ .Values.SUPERTOKENS_API_KEY }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: supertokensApiKey
             - name: SUPERTOKENS_CONNECTION_URI
-              value: http://supertokens.hive.svc:3567
+              value: http://supertokens.{{ .Release.Namespace }}.svc:3567
             - name: TOKENS_ENDPOINT
-              value: http://tokens.hive.svc:3003
+              value: http://tokens.{{ .Release.Namespace }}.svc:3003
             - name: WEBHOOKS_ENDPOINT
-              value: http://webhooks.hive.svc:3005
+              value: http://webhooks.{{ .Release.Namespace }}.svc:3005
             - name: WEB_APP_URL
               value: {{ .Values.HIVE_APP_BASE_URL }}
-          image: {{ .Values.DOCKER_REGISTRY }}server{{ .Values.DOCKER_TAG }}
-          name: server
-          ports:
-            - containerPort: 3001
-          resources: {}
+          
       restartPolicy: Always
 status: {}

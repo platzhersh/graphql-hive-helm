@@ -4,8 +4,8 @@ metadata:
   name: supertokens
 spec:
   ports:
-    - name: "3567" # TODO: PERZ-269 move into config
-      port: 3567
-      targetPort: 3567
+    - name: "supertokens-api"
+      port: {{ .Values.SUPERTOKENS_PORT }}
+      targetPort: {{ .Values.SUPERTOKENS_PORT }}
   selector:
     io.kompose.service: supertokens

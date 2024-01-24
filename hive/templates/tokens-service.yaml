@@ -4,7 +4,7 @@ metadata:
   name: tokens
 spec:
   ports:
-    - name: "3003" # TODO: PERZ-269 move into config
+    - name: "3003"
       port: 3003
       targetPort: 3003
   selector:

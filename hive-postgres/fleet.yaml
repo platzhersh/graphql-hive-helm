@@ -1,0 +1,8 @@
+defaultNamespace: hive
+helm:
+  repo: https://charts.bitnami.com/bitnami
+  chart: postgresql
+  version: 12.6.5
+  releaseName: postgresql
+  valuesFiles:
+    - values.yaml

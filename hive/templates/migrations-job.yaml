@@ -6,46 +6,54 @@ kind: Job
 metadata:
   name: migrations
 spec:
-  # selector:
-  #   matchLabels:
-  #     io.kompose.service: migrations
+  ttlSecondsAfterFinished: 100
   template:
     metadata:
       labels:
         io.kompose.network/hive: "true"
         io.kompose.service: migrations
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - image: {{ .Values.DOCKER_REGISTRY }}storage{{ .Values.DOCKER_TAG }}
+          name: migrations
+          env:
             - name: CLICKHOUSE_HOST
               value: clickhouse.{{ .Release.Namespace }}.svc
             - name: CLICKHOUSE_MIGRATOR
               value: "up"
-            - name: CLICKHOUSE_PASSWORD
-              value: {{ .Values.CLICKHOUSE_PASSWORD }}
             - name: CLICKHOUSE_PORT
-              value: "8123" # TODO: PERZ-269 move into values
+              value: {{ .Values.CLICKHOUSE_PORT | quote }}
             - name: CLICKHOUSE_PROTOCOL
-              value: "http"
+              value: {{ .Values.CLICKHOUSE_PROTOCOL | quote }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: clickhousePassword
             - name: CLICKHOUSE_USERNAME
-              value: {{ .Values.CLICKHOUSE_USER }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: clickhouseUser
             - name: MIGRATOR
               value: "up"
             - name: POSTGRES_DB
-              value: {{ .Values.POSTGRES_DB }}
+              value: {{ .Values.POSTGRES_DB | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: postgresPassword
+            - name: POSTGRES_USER
+              value: {{ .Values.POSTGRES_USER | quote}}
             - name: POSTGRES_HOST
               value: db.{{ .Release.Namespace }}.svc
-            - name: POSTGRES_PASSWORD
-              value: {{ .Values.POSTGRES_PASSWORD }}
             - name: POSTGRES_PORT
-              value: "5432" # TODO: PERZ-269 move into values
-            - name: POSTGRES_USER
-              value: {{ .Values.POSTGRES_USER }}
+              value: "5432"
             - name: TS_NODE_TRANSPILE_ONLY
               value: "true"
-          # TODO: PERZ-269 check if env ar resolved correctly
-          image: {{ .Values.DOCKER_REGISTRY}}storage{{ .Values.DOCKER_TAG }}
-          name: migrations
           resources: {}
       restartPolicy: OnFailure
 status: {}

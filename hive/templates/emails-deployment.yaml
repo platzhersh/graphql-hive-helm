@@ -1,10 +1,8 @@
+# Service for sending Hive Emails.
+# More information: https://github.com/kamilkisiela/graphql-hive/blob/main/packages/services/emails/README.md
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --out k8s
-    kompose.version: 1.28.0 (c4137012e)
-  creationTimestamp: null
   labels:
     io.kompose.service: emails
   name: emails
@@ -16,33 +14,50 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --out k8s
-        kompose.version: 1.28.0 (c4137012e)
-      creationTimestamp: null
       labels:
         io.kompose.network/hive: "true"
         io.kompose.service: emails
     spec:
+      imagePullSecrets:
+        - name: registry-regcreds
       containers:
-        - env:
+        - image: {{ .Values.DOCKER_REGISTRY }}emails{{ .Values.DOCKER_TAG }}
+          name: emails
+          imagePullPolicy: Always
+          env:
             - name: EMAIL_FROM
-              value: no-reply@graphql-hive.com
+              value: no-reply-hive@yourdomain.com
             - name: EMAIL_PROVIDER
-              value: sendmail
+              value: {{ .Values.EMAILS_PROVIDER | quote }}
+            - name: EMAIL_PROVIDER_SMTP_PROTOCOL
+              value: {{ .Values.EMAILS_PROVIDER_SMTP_PROTOCOL | quote }}
+            - name: EMAIL_PROVIDER_SMTP_HOST
+              value: {{ .Values.EMAILS_PROVIDER_SMTP_HOST | quote }}
+            - name: EMAIL_PROVIDER_SMTP_PORT
+              value: {{ .Values.EMAILS_PROVIDER_SMTP_PORT | quote }}
+            - name: EMAIL_PROVIDER_SMTP_AUTH_USERNAME
+              value: {{ .Values.EMAILs_PROVIDER_SMTP_AUTH_USERNAME | quote }}
+            - name: EMAIL_PROVIDER_SMTP_AUTH_PASSWORD
+              value: {{ .Values.EMAILS_PROVIDER_SMTP_AUTH_PASSWORD | quote }}
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: "3011"
+              value: {{ .Values.EMAILS_EXPOSED_PORT | quote }}
             - name: REDIS_HOST
               value: redis.{{ .Release.Namespace }}.svc
             - name: REDIS_PASSWORD
-              value: {{ .Values.REDIS_PASSWORD }}
+              valueFrom:
+                secretKeyRef:
+                  name: supergraph-registry-secrets
+                  key: redisPassword
             - name: REDIS_PORT
-              value: "6379"
-          # TODO: PERZ-269 check if env correctly resolved
-          image: {{ .Values.DOCKER_REGISTRY }}emails{{ .Values.DOCKER_TAG }}
-          name: emails
+              value: {{ .Values.REDIS_PORT | quote }}
+            - name: REQUEST_LOGGING
+              value: "1"
+            - name: PROMETHEUS_METRICS
+              value: "1"
+            - name: PROMETHEUS_METRICS_LABEL_INSTANCE
+              value: emails
           resources: {}
       restartPolicy: Always
 status: {}

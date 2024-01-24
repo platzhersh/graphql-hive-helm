@@ -1,0 +1,41 @@
+#nameOverride: kafka-broker
+fullnameOverride: kafka-broker
+global:
+  storageClass: longhorn-noreplica
+podSecurityContext:
+  fsGroup: 1000
+containerSecurityContext:
+  runAsUser: 1000
+autoCreateTopicsEnable: true
+advertisedListeners:
+  - "CLIENT://kafka-broker.hive.svc:9092"
+  - "INTERNAL://localhost:9092"
+listenerSecurityProtocolMap: "INTERNAL:PLAINTEXT,CLIENT:PLAINTEXT"
+# externalZookeeper:
+#   servers:
+#     - "zookeeper.hive.svc:2181"
+zookeeper:
+  enabled: true
+kraft:
+  enabled: false
+allowPlaintextListener: true
+interBrokerListenerName: INTERNAL
+auth:
+  clientProtocol: plaintext
+  externalClientProtocol: plaintext
+  interBrokerProtocol: plaintext
+  #controllerProtocol: plaintext
+# config: |-
+#   version=0
+extraEnvVars:
+  - name: KAFKA_CFG_VERSION
+    value: "0"
+
+primary:
+  persistence:
+    size: 500Mi
+loglevel: debug
+# externalAccess:
+#   enabled: true
+#   service:
+#     type: ClusterIP
