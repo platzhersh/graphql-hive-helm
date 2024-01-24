@@ -5,8 +5,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # annotations:
-  #   dockerTag: {{ .Values.COMPOSITION_TAG | quote }}
   labels:
     io.kompose.service: composition
   name: composition

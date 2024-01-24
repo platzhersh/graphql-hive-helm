@@ -53,5 +53,3 @@ REDIS_PORT: 6379
 
 # composition
 COMPOSITION_PORT: 3069
-# Tag before IPv6 https://github.com/kamilkisiela/graphql-hive/pkgs/container/graphql-hive%2Fcomposition-federation-2/69264672?tag=ab24f0c48054da10d31c89e035c6cd02fafe8e33
-COMPOSITION_TAG: ":ab24f0c48054da10d31c89e035c6cd02fafe8e33"
